@@ -36,3 +36,7 @@ csv2struct -f ./test.csv -t ./blah.go -tn Blah --casetype space
 ```
 Also, it's available as library. 
 Will provide usage examples a bit later...
+
+
+## Contribution
+Your contribution to the project is welcomed and appreciated.
