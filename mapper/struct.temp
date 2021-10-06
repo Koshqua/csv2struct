@@ -1,0 +1,6 @@
+package {{.PkgName }}
+
+type {{.Name}} struct {
+    {{range .Fields}}{{.Name}} {{.Type}} `csv:"{{.CsvTag}}"`
+    {{end -}}
+}
