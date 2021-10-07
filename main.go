@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 
@@ -79,5 +82,20 @@ func convertCsvToStruct(c *cli.Context) error {
 			Verbose:      c.Bool("verbose"),
 		},
 	}
-	return m.CreateStructFromCsv()
+
+	parsedTemplate, err := m.CreateStructFromCsv()
+	if err != nil {
+		return err
+	}
+	f, err := os.Create(m.Config.To)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	f.Write([]byte(parsedTemplate))
+	cmd := exec.Command("gofmt", "-w", m.Config.To)
+	if errOut, err := cmd.CombinedOutput(); err != nil {
+		panic(fmt.Errorf("failder to run %v: %v\n%s", strings.Join(cmd.Args, " "), err, errOut))
+	}
+	return nil
 }

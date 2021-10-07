@@ -6,10 +6,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -44,8 +42,8 @@ type Mapper struct {
 	Config Config
 }
 
-func (m *Mapper) parseCsv(file []byte) (*parsedCsv, error) {
-	r := csv.NewReader(bytes.NewReader(file))
+func (m *Mapper) parseCsv(file io.Reader) (*parsedCsv, error) {
+	r := csv.NewReader(file)
 	r.Comma = []rune(m.Config.CsvSeparator)[0]
 	r.TrimLeadingSpace = true
 	p := new(parsedCsv)
@@ -59,7 +57,6 @@ func (m *Mapper) parseCsv(file []byte) (*parsedCsv, error) {
 		return p, fmt.Errorf("couldn't read values w error %v", err)
 	}
 	p.values = values
-	r.ReadAll()
 	return p, nil
 }
 
@@ -142,22 +139,23 @@ func (m *Mapper) getFieldTypes(vals []string) []string {
 	return types
 }
 
-func (m *Mapper) CreateStructFromCsv() error {
-	csvFile, err := ioutil.ReadFile(m.Config.From)
+func (m *Mapper) CreateStructFromCsv() (string, error) {
+	csvFile, err := os.OpenFile(m.Config.From, os.O_RDONLY, 0666)
 	if err != nil {
-		return err
+		return "", err
 	}
+	defer csvFile.Close()
 	parsed, err := m.parseCsv(csvFile)
 	if err != nil {
-		return err
+		return "", err
 	}
 	normalizedHeader, err := m.normalizeHeaders(parsed)
 	if err != nil {
-		return err
+		return "", err
 	}
 	valueTypes := m.getFieldTypes(parsed.values)
 	if len(normalizedHeader) != len(valueTypes) && len(normalizedHeader) != len(parsed.headers) {
-		return fmt.Errorf("got %v headers and %v values, not matching", len(normalizedHeader), len(valueTypes))
+		return "", fmt.Errorf("got %v headers and %v values, not matching", len(normalizedHeader), len(valueTypes))
 	}
 	pkgName := getPackageName()
 	if pkgName == "" {
@@ -179,20 +177,9 @@ func (m *Mapper) CreateStructFromCsv() error {
 	log.Printf("%#+v", fields)
 	typeToGen.Fields = fields
 	templ := template.Must(template.New("type_temp").Parse(structTemp))
-	f, err := os.Create(m.Config.To)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	err = templ.Execute(f, typeToGen)
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command("gofmt", "-w", m.Config.To)
-	if errOut, err := cmd.CombinedOutput(); err != nil {
-		panic(fmt.Errorf("failder to run %v: %v\n%s", strings.Join(cmd.Args, " "), err, errOut))
-	}
-	return nil
+	w := bytes.NewBuffer([]byte{})
+	err = templ.Execute(w, typeToGen)
+	return w.String(), err
 }
 
 func getPackageName() string {

@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,8 @@ ivan,koshqua,blah`
 		m.Config = Config{
 			CsvSeparator: ",",
 		}
-		ps, err := m.parseCsv([]byte(csvEx))
+		r := bytes.NewReader([]byte(csvEx))
+		ps, err := m.parseCsv(r)
 		assert.NoError(t, err)
 		expectedHeaders := []string{"name", "nickname", "blah"}
 		expectedValues := []string{"ivan", "koshqua", "blah"}
@@ -28,7 +30,8 @@ ivan|koshqua|blah`
 		m.Config = Config{
 			CsvSeparator: "|",
 		}
-		ps, err := m.parseCsv([]byte(csvEx))
+		r := bytes.NewReader([]byte(csvEx))
+		ps, err := m.parseCsv(r)
 		assert.NoError(t, err)
 		expectedHeaders := []string{"name", "nickname", "blah"}
 		expectedValues := []string{"ivan", "koshqua", "blah"}
