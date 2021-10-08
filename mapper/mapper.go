@@ -162,8 +162,9 @@ func (m *Mapper) CreateStructFromCsv() (string, error) {
 		pkgName = "placeholder_package_name"
 	}
 	typeToGen := GeneratedType{
-		PkgName: pkgName,
-		Name:    m.Config.TypeName,
+		AddPackageName: m.Config.AddPackageName,
+		PkgName:        pkgName,
+		Name:           m.Config.TypeName,
 	}
 	fields := make([]Field, 0, len(normalizedHeader))
 	for i := 0; i < len(normalizedHeader); i++ {

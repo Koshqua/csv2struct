@@ -1,16 +1,17 @@
 package mapper
 
 type Config struct {
-	From, To, TypeName string
-	CsvSeparator       string
-	WordCaseType       CaseType
-	Verbose            bool
+	From, To, TypeName      string
+	CsvSeparator            string
+	WordCaseType            CaseType
+	Verbose, AddPackageName bool
 }
 
 type GeneratedType struct {
-	PkgName string
-	Name    string
-	Fields  []Field
+	AddPackageName bool
+	PkgName        string
+	Name           string
+	Fields         []Field
 }
 type Field struct {
 	CsvTag string

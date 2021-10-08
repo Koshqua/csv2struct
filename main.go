@@ -74,12 +74,13 @@ func main() {
 func convertCsvToStruct(c *cli.Context) error {
 	m := &mapper.Mapper{
 		Config: mapper.Config{
-			From:         c.String("from"),
-			To:           c.String("to"),
-			TypeName:     c.String("typename"),
-			CsvSeparator: c.String("csvsep"),
-			WordCaseType: mapper.ParseCaseType(c.String("casetype")),
-			Verbose:      c.Bool("verbose"),
+			From:           c.String("from"),
+			To:             c.String("to"),
+			TypeName:       c.String("typename"),
+			CsvSeparator:   c.String("csvsep"),
+			WordCaseType:   mapper.ParseCaseType(c.String("casetype")),
+			Verbose:        c.Bool("verbose"),
+			AddPackageName: true,
 		},
 	}
 
