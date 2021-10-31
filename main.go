@@ -93,7 +93,10 @@ func convertCsvToStruct(c *cli.Context) error {
 		return err
 	}
 	defer f.Close()
-	f.Write([]byte(parsedTemplate))
+	_, err = f.Write([]byte(parsedTemplate))
+	if err != nil {
+		return err
+	}
 	cmd := exec.Command("gofmt", "-w", m.Config.To)
 	if errOut, err := cmd.CombinedOutput(); err != nil {
 		panic(fmt.Errorf("failder to run %v: %v\n%s", strings.Join(cmd.Args, " "), err, errOut))
