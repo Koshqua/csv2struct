@@ -19,6 +19,6 @@ type Field struct {
 	Type   string
 }
 
-type parsedCsv struct {
+type ParsedCSV struct {
 	headers, values []string
 }

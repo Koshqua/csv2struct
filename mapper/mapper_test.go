@@ -16,7 +16,7 @@ ivan,koshqua,blah`
 			CsvSeparator: ",",
 		}
 		r := bytes.NewReader([]byte(csvEx))
-		ps, err := m.parseCsv(r)
+		ps, err := m.ParseCSV(r)
 		assert.NoError(t, err)
 		expectedHeaders := []string{"name", "nickname", "blah"}
 		expectedValues := []string{"ivan", "koshqua", "blah"}
@@ -31,7 +31,7 @@ ivan|koshqua|blah`
 			CsvSeparator: "|",
 		}
 		r := bytes.NewReader([]byte(csvEx))
-		ps, err := m.parseCsv(r)
+		ps, err := m.ParseCSV(r)
 		assert.NoError(t, err)
 		expectedHeaders := []string{"name", "nickname", "blah"}
 		expectedValues := []string{"ivan", "koshqua", "blah"}
@@ -46,7 +46,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 		config Config
 	}
 	type args struct {
-		p *parsedCsv
+		p *ParsedCSV
 	}
 	tests := []struct {
 		name    string
@@ -63,7 +63,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{headers: []string{"1Numeric*Blah", "Abra^Kadabra"}},
+				p: &ParsedCSV{headers: []string{"1Numeric*Blah", "Abra^Kadabra"}},
 			},
 			want:    []string{"NumericBlah", "AbraKadabra"},
 			wantErr: false,
@@ -76,7 +76,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{
+				p: &ParsedCSV{
 					headers: []string{"1numeric*Bl ah", "abra Kadabra&***"},
 				},
 			},
@@ -90,7 +90,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{
+				p: &ParsedCSV{
 					headers: []string{"1numeric-*bl ah", "abra-kadabra&***"},
 				},
 			},
@@ -104,7 +104,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{
+				p: &ParsedCSV{
 					headers: []string{"1numeric_*bl ah", "abra_kadabra&***"},
 				},
 			},
@@ -118,7 +118,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{
+				p: &ParsedCSV{
 					headers: []string{"1numeric_* blah", "abra kadabra&***"},
 				},
 			},
@@ -132,7 +132,7 @@ func TestMapper_normalizeHeaders(t *testing.T) {
 				},
 			},
 			args: args{
-				p: &parsedCsv{
+				p: &ParsedCSV{
 					headers: []string{"1numeric_* blah", "abra kadabra&***"},
 				},
 			},

@@ -42,11 +42,11 @@ type Mapper struct {
 	Config Config
 }
 
-func (m *Mapper) parseCsv(file io.Reader) (*parsedCsv, error) {
+func (m *Mapper) ParseCSV(file io.Reader) (*ParsedCSV, error) {
 	r := csv.NewReader(file)
 	r.Comma = []rune(m.Config.CsvSeparator)[0]
 	r.TrimLeadingSpace = true
-	p := new(parsedCsv)
+	p := new(ParsedCSV)
 	headers, err := r.Read()
 	if err != nil && err != io.EOF {
 		return p, fmt.Errorf("couldn't read headers w error %v", err)
@@ -60,7 +60,7 @@ func (m *Mapper) parseCsv(file io.Reader) (*parsedCsv, error) {
 	return p, nil
 }
 
-func (m *Mapper) normalizeHeaders(p *parsedCsv) ([]string, error) {
+func (m *Mapper) normalizeHeaders(p *ParsedCSV) ([]string, error) {
 	switch m.Config.WordCaseType {
 	case Pascal:
 		normalized := make([]string, 0, len(p.headers))
@@ -139,13 +139,24 @@ func (m *Mapper) getFieldTypes(vals []string) []string {
 	return types
 }
 
+// CreateStructFromCsv is a shorthand for CreateStructFromReader, but it reads csv from file for you.
 func (m *Mapper) CreateStructFromCsv() (string, error) {
 	csvFile, err := os.OpenFile(m.Config.From, os.O_RDONLY, 0666)
 	if err != nil {
 		return "", err
 	}
 	defer csvFile.Close()
-	parsed, err := m.parseCsv(csvFile)
+	return m.CreateStructFromReader(csvFile)
+}
+
+// CreateStructFromReader reads csv from reader and return type T struct as a golang representation of that csv in reader.
+// It returns string in format
+// package p
+// type T struct {
+// fields ...
+// }
+func (m *Mapper) CreateStructFromReader(r io.Reader) (string, error) {
+	parsed, err := m.ParseCSV(r)
 	if err != nil {
 		return "", err
 	}
