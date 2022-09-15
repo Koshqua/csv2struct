@@ -9,7 +9,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"github.com/koshqua/csv2struct/mapper"
+	"github.com/Koshqua/csv2struct/mapper"
 )
 
 func main() {
